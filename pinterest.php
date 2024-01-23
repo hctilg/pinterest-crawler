@@ -137,15 +137,17 @@ class PinterestScraper {
         $resourceResponse = $jsonData["resource_response"];
         $data = $resourceResponse["data"];
         $results = $data["results"];
+        
         foreach ($results as $result) {
-            $this->imageUrls[] = $result["images"][$this->config->imageQuality]["url"];
+            $this->image_urls[] = $result["images"][$this->config->imageQuality]["url"];
         }
 
-        if (count($this->imageUrls) < (int)$this->config->fileLengths) {
+        if (count($this->image_urls) < (int)$this->config->fileLengths) {
             $this->config->bookmarks = $resourceResponse["bookmark"];
-            echo "Creating links " . count($this->imageUrls) . "\n";
+            echo "Creating links " . count($this->image_urls) . "\n";
             $this->getUrls();
         }
-        return array_slice($this->imageUrls, 0, $this->config->fileLengths);
+        
+        return array_slice($this->image_urls, 0, $this->config->fileLengths);
     }
 }

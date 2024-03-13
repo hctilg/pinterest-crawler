@@ -131,15 +131,18 @@ class PinterestScraper {
         $SOURCE_URL = $this->config->getSourceUrl();
         $DATA = $this->config->getImageData();
         $URL_CONSTANT = $this->config->getSearchUrl();
-        $url = $URL_CONSTANT . '?source_url=' . urlencode($SOURCE_URL) . '&data=' . $DATA;
-        $response = @file_get_contents($url);
+        $query_data = ['source_url'=> $SOURCE_URL, 'data'=> $DATA];
+        $stream = stream_context_create(['http'=> ['method'=> 'GET', 'content'=> http_build_query($query_data)]]);
+        $response = @file_get_contents($URL_CONSTANT, false, $stream);
         $jsonData = json_decode($response, true);
         $resourceResponse = $jsonData["resource_response"];
         $data = $resourceResponse["data"];
-        $results = $data["results"];
+        $results = $data["results"] ?? [];
         
         foreach ($results as $result) {
-            $this->image_urls[] = $result["images"][$this->config->imageQuality]["url"];
+            try {
+                $this->image_urls[] = $result["images"][$this->config->imageQuality]["url"];
+            } catch (Exception $e) {}
         }
 
         if (count($this->image_urls) < (int)$this->config->fileLengths) {
